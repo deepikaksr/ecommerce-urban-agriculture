@@ -1,0 +1,41 @@
+CREATE DATABASE shopping_cart;
+USE shopping_cart;
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT NOT NULL,
+    variety ENUM('fruit', 'vegetable', 'greens') NOT NULL DEFAULT 'vegetable',
+    image VARCHAR(255) NOT NULL,
+    added_by VARCHAR(50) NOT NULL
+);
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Banana', 35.20, 500, 'fruit', 'banana.png', 'Arjun');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Tomato', 25, 500, 'vegetable', 'tomato.png', 'Akhil');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Curry leaves', 9, 100, 'greens', 'curry leaves.png', 'Tanya');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Ginger', 34, 200, 'vegetable', 'ginger.png', 'Kavin');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Big Onion', 29, 500, 'vegetable', 'big onion.png', 'Selva');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Small Onion', 45, 250, 'vegetable', 'small onion.png', 'Saran');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Corriander', 20, 100, 'greens', 'corriander.png', 'Shreya');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Apple', 80, 500, 'fruit', 'apple.png', 'Zaara');
+
+INSERT INTO products (name, price, quantity, variety, image, added_by)
+VALUES ('Mint', 25, 200, 'greens', 'mint.png', 'Deepika');
+
+

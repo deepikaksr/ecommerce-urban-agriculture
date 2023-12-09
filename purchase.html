@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Purchase page</title>
+    <link rel="stylesheet" type="text/css" href="style-3.css">
+    <style>
+        .product .product-image {
+            float: left;
+            margin-right: 10px; 
+        }
+
+        .center-align {
+            text-align: center;
+        }
+
+        .product {
+            margin-bottom: 10px; 
+            overflow: auto;
+        }
+
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+        }
+
+        .buy-button {
+            margin-top: 10px; 
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>AVAILABLE PRODUCTS</h1>
+        <div class="sorting-options">
+            <label for="sort">Sort By:</label>
+            <select id="sort" onchange="sortProducts()">
+                <option value="default">Default</option>
+                <option value="fruit">Fruits</option>
+                <option value="vegetable">Vegetables</option>
+                <option value="greens">Greens</option>
+            </select>
+        </div>
+    </header>
+    <div class="container">
+        <div class="product-list">
+            <ul id="products-list"></ul>
+        </div>
+    </div>
+
+    <div class="cart">
+        <h2>Shopping Cart</h2>
+        <ul id="cart-items"></ul>
+        <p>Total Bill: <span id="cart-total">Rs: 0.00</span></p>
+        <br></br>
+        To view the Product and User Details : <a href="prod_user_det.html">Click here</a>
+        <br></br>
+        To view the Total No.of Products in each Variety : <a href="tot_quantity.html">Click here</a>
+    </div>
+
+    <script>
+        // Assuming you are using fetch API
+        fetch('get_total_quantity.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                } else {
+                    console.log('Total Quantity:', data.total_quantity);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        // Function to save products to local storage
+        function saveProductsToLocalStorage(products) {
+            localStorage.setItem("products", JSON.stringify(products));
+        }
+        let products = [];
+        function addToCart(event, productName, productPrice, productQuantity) {
+            const quantityInput = event.target.parentElement.querySelector('.quantity');
+            const quantity = parseInt(quantityInput.value);
+
+            if (quantity > 0) {
+                const cartItem = document.createElement('li');
+                const itemTotal = productPrice * quantity;
+                cartItem.textContent = `${quantity} x ${productName} - Rs: ${itemTotal.toFixed(2)}`;
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.onclick = () => removeCartItem(cartItem);
+                cartItem.appendChild(removeButton);
+
+                document.getElementById('cart-items').appendChild(cartItem);
+                updateCartTotal();
+            }
+        }
+
+        function removeCartItem(cartItem) {
+            const cartItems = document.getElementById('cart-items');
+            cartItems.removeChild(cartItem);
+            updateCartTotal();
+        }
+
+        function updateCartTotal() {
+            const cartItems = document.querySelectorAll('#cart-items li');
+            let total = 0;
+            cartItems.forEach((item) => {
+                const parts = item.textContent.split(' - Rs: ');
+                const itemTotal = parseFloat(parts[1]);
+                total += itemTotal;
+            });
+            document.getElementById('cart-total').textContent = `Rs: ${total.toFixed(2)}`;
+        }
+
+        function sortProducts() {
+            const sortOption = document.getElementById('sort').value.toLowerCase();
+            let sortedProducts;
+            switch (sortOption) {
+                case 'fruit':
+                case 'vegetable':
+                case 'greens':
+                    sortedProducts = products.filter(product => product.variety.toLowerCase() === sortOption);
+                    break;
+                default:
+                    sortedProducts = products;
+                    break;
+            }
+            renderProducts(sortedProducts);
+        }
+
+        function renderProducts(products) {
+            const productsList = document.getElementById('products-list');
+            productsList.innerHTML = '';
+
+            products.forEach(product => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div class="product center-align">
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                        <div class="product-details">
+                            <div class="product-info">
+                                <div class="product-name">Item Name: ${product.name}</div>
+                                <div class="product-price">Rs: ${product.price}</div>
+                                <div class="product-quantity">Quantity: ${product.quantity}g</div>
+                                <div class="variety">Type: ${product.variety}</div>
+                            </div>
+                            <div class="product-quantity">Quantity: <input type="number" class="quantity" value="1" min="1" /></div>
+                            <button class="buy-button" onclick="addToCart(event, '${product.name}', ${product.price}, ${product.quantity})">Add to Cart</button>
+                        </div>
+                    </div>
+                `;
+                productsList.appendChild(listItem);
+            });
+        }
+
+        // Fetch products from the server using AJAX
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    products = JSON.parse(this.responseText);
+                    console.log('Fetched Products:', products);
+                    sortProducts(); // Initial rendering with default sorting
+                } else {
+                    console.error('Failed to fetch products:', this.statusText);
+                }
+            }
+        };
+
+        xhr.open("GET", "get_products.php", true);
+        xhr.send();
+    </script>
+
+</body>
+</html>

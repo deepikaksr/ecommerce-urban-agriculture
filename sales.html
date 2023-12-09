@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sell a Product</title>
+    <link rel="stylesheet" type="text/css" href="style-5.css">
+</head>
+<body>
+    <h1>TO SELL PRODUCT</h1>
+    <form id="product-form">
+        <label for="product-name">Product Name:</label>
+        <input type="text" id="product-name" name="product-name" required>
+        
+        <label for="product-price">Product Price:</label>
+        <input type="number" id="product-price" name="product-price" step="0.01" required>
+
+        <label for="product-quantity">Product Quantity (in grams):</label>
+        <input type="number" id="product-quantity" name="product-quantity" required>
+
+        <label for="product-variety">Product Variety:</label>
+        <select id="product-variety" name="product-variety" required>
+            <option value="fruit">Fruit</option>
+            <option value="vegetable">Vegetable</option>
+            <option value="greens">Greens</option>
+        </select>   
+
+        <label for="product-image">Product Image:</label>
+        <input type="file" id="product-image" name="product-image" accept="image/*" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>PRODUCT LIST</h2>
+    <ul id="product-list"></ul>
+
+    <!-- Add this form at the end of your HTML body -->
+    <div id="update-form-container" style="display: none;">
+        <h2>Update Product</h2>
+        <form id="update-form">
+            <label for="update-product-name">Product Name:</label>
+            <input type="text" id="update-product-name" name="update-product-name" required>
+
+            <label for="update-product-price">Product Price:</label>
+            <input type="number" id="update-product-price" name="update-product-price" step="0.01" required>
+
+            <label for="update-product-quantity">Product Quantity (in grams):</label>
+            <input type="number" id="update-product-quantity" name="update-product-quantity" required>
+
+            <label for="update-product-variety">Product Variety:</label>
+            <select id="update-product-variety" name="update-product-variety" required>
+                <option value="fruit">Fruit</option>
+                <option value="vegetable">Vegetable</option>
+                <option value="greens">Greens</option>
+            </select>
+
+            <button type="button" onclick="saveUpdatedProduct()">Save Changes</button>
+            <button type="button" onclick="cancelUpdate()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+
+        // Function to save products to local storage
+        function saveProductsToLocalStorage(products) {
+            localStorage.setItem("products", JSON.stringify(products));
+        }
+
+        // Function to get products from local storage
+        function getProductsFromLocalStorage() {
+            const storedProducts = localStorage.getItem("products");
+            return storedProducts ? JSON.parse(storedProducts) : [];
+        }
+
+        document.getElementById("product-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const productName = document.getElementById("product-name").value;
+            const productPrice = parseFloat(document.getElementById("product-price").value);
+            const productQuantity = parseFloat(document.getElementById("product-quantity").value);
+            const productVariety = document.getElementById("product-variety").value;
+            const productImage = document.getElementById("product-image").files[0];
+
+            if (productName && productPrice && productQuantity && productVariety && productImage) {
+                const newProduct = {
+                    name: productName,
+                    price: productPrice,
+                    quantity: productQuantity,
+                    variety: productVariety,
+                    image: productImage
+                };
+
+                // Get existing products from local storage
+                const existingProducts = getProductsFromLocalStorage();
+
+                // Add the new product to the existing products
+                existingProducts.push(newProduct);
+
+                // Save the updated products to local storage
+                saveProductsToLocalStorage(existingProducts);
+
+                // Display products immediately after adding a new product
+                displayProducts(existingProducts);
+            }
+        });
+
+        function deleteProduct(index) {
+            // Fetch the products from local storage
+            const existingProducts = getProductsFromLocalStorage();
+
+            // Remove the product with the specified index
+            existingProducts.splice(index, 1);
+
+            // Save the updated products to local storage
+            saveProductsToLocalStorage(existingProducts);
+
+            // Display the updated products
+            displayProducts(existingProducts);
+        }
+
+        function displayProducts(products) {
+            const productsList = document.getElementById("product-list");
+            productsList.innerHTML = "";
+
+            products.forEach((product, index) => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <span>${product.name} - Rs: ${product.price.toFixed(2)} - ${product.quantity}g - Variety: ${product.variety}</span>
+                    <button onclick="deleteProduct(${index})">Delete</button>
+                    <button onclick="updateProduct(${index})">Update</button>
+                `;
+                productsList.appendChild(listItem);
+            });
+        }
+
+        function updateProduct(index) {
+            // Fetch the products from local storage
+            const existingProducts = getProductsFromLocalStorage();
+
+            // Fill the update form with the details of the selected product
+            const selectedProduct = existingProducts[index];
+            document.getElementById("update-product-name").value = selectedProduct.name;
+            document.getElementById("update-product-price").value = selectedProduct.price;
+            document.getElementById("update-product-quantity").value = selectedProduct.quantity;
+            document.getElementById("update-product-variety").value = selectedProduct.variety;
+
+            // Display the update form
+            document.getElementById("update-form-container").style.display = "block";
+        }
+
+        function cancelUpdate() {
+            // Hide the update form
+            document.getElementById("update-form-container").style.display = "none";
+        }
+
+        function saveUpdatedProduct() {
+            // Fetch the products from local storage
+            const existingProducts = getProductsFromLocalStorage();
+
+            // Get the updated values from the form
+            const updatedName = document.getElementById("update-product-name").value;
+            const updatedPrice = parseFloat(document.getElementById("update-product-price").value);
+            const updatedQuantity = parseFloat(document.getElementById("update-product-quantity").value);
+            const updatedVariety = document.getElementById("update-product-variety").value;
+
+            // Update the selected product
+            const selectedIndex = existingProducts.findIndex(product => product.name === updatedName);
+            if (selectedIndex !== -1) {
+                existingProducts[selectedIndex].name = updatedName;
+                existingProducts[selectedIndex].price = updatedPrice;
+                existingProducts[selectedIndex].quantity = updatedQuantity;
+                existingProducts[selectedIndex].variety = updatedVariety;
+
+                // Save the updated products to local storage
+                saveProductsToLocalStorage(existingProducts);
+
+                // Hide the update form
+                document.getElementById("update-form-container").style.display = "none";
+
+                // Display the updated products
+                displayProducts(existingProducts);
+            }
+        }
+
+        // Initial display of products
+        const existingProducts = getProductsFromLocalStorage();
+        displayProducts(existingProducts);
+    </script>
+</body>
+</html>

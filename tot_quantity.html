@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details</title>
+    <link rel="stylesheet" type="text/css" href="style-8.css">
+</head>
+
+<body>
+    <h1>Product Details</h1>
+
+    <div id="product-details-container">
+    </div>
+
+    <script>
+        // Fetch total quantity data from get_total_quantity.php
+        fetch('get_total_quantity.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(data.error);
+                } else {
+                    // Render the product details
+                    renderProductDetails(data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+        // Function to render the product details
+        function renderProductDetails(data) {
+            const detailsContainer = document.getElementById('product-details-container');
+
+            // Loop through each variety and create a paragraph for each
+            data.forEach(variety => {
+                const detailsParagraph = document.createElement('p');
+                detailsParagraph.textContent = `Variety : ${variety.variety}, Total Products : ${variety.total_products}`;
+                // Append the details to the container
+                detailsContainer.appendChild(detailsParagraph);
+            });
+        }
+    </script>
+</body>
+
+</html>

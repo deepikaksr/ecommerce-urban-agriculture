@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product and User Details</title>
+    <link rel="stylesheet" type="text/css" href="style-7.css">
+</head>
+
+<body>
+    <h1>Product and User Details</h1>
+    <div id="product-table-container"></div>
+    <script>
+        // Fetch data from the PHP file
+        fetch('prod_user.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Handle the case where there are no results
+                    document.getElementById('product-table-container').innerHTML = '<p>No results</p>';
+                } else {
+                    // Create an HTML table dynamically
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Variety</th>
+                            <th>Added By</th>
+                        </tr>
+                    `;
+
+                    // Populate the table with data
+                    data.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.id}</td>
+                            <td>${product.name}</td>
+                            <td>${product.price}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.variety}</td>
+                            <td>${product.added_by}</td>
+                        `;
+                        table.appendChild(row);
+                    });
+
+                    // Append the table to the container
+                    document.getElementById('product-table-container').appendChild(table);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
